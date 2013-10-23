@@ -8,13 +8,23 @@
 
 #import <UIKit/UIKit.h>
 
+typedef enum {
+    YKRoundedViewPositionTop = 0,
+    YKRoundedViewPositionMiddle,
+    YKRoundedViewPositionBottom,
+    YKRoundedViewPositionSingle,
+} YKRoundedViewPosition;
+
 @interface YKRoundedView : UIView
 
 @property (nonatomic, strong) UIColor *fillColor;
 @property (nonatomic, strong) UIColor *strokeColor;
 @property (nonatomic, strong) UIColor *shadowColor;
+@property (nonatomic, strong) UIColor *separatorColor;
+@property (nonatomic, strong) UIColor *separatorShadowColor;
 @property (nonatomic, assign) CGFloat lineWidth;
 @property (nonatomic, assign) CGFloat cornerRadius;
-@property (nonatomic, assign) UIRectCorner rectCorner;
+@property (nonatomic, assign) YKRoundedViewPosition position;
+@property (nonatomic, assign) BOOL showsSeparator;
 
 @end
