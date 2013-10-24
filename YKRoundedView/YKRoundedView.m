@@ -17,220 +17,176 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        _showsSeparator = YES;
+        self.backgroundColor = [UIColor clearColor];
+
+        _showsSeparator = NO;
+        _lineWidth = kYKRoundedViewDefaultLineWidth;
         _fillColor = [UIColor colorWithRed:0.97f green:0.97f blue:0.97f alpha:1.0f];
         _strokeColor = [UIColor colorWithRed:0.63f green:0.63f blue:0.63f alpha:0.8f];
-        _shadowColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:0.7f];
+        _innerShadowColor = [UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:0.1f];
+        _outerShadowColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:0.1f];
         _separatorColor = [UIColor colorWithRed:0.74f green:0.74f blue:0.74f alpha:1.0f];
         _separatorShadowColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
     }
     return self;
 }
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
+- (void)drawRect:(CGRect)rect {
+    [super drawRect:rect];
 
     CGFloat cornerRadius = (_cornerRadius ? _cornerRadius : kYKRoundedViewDefaultCornerRadius);
-    CGFloat minX = CGRectGetMinX(self.bounds);
-    CGFloat maxX = CGRectGetMaxX(self.bounds);
-    CGFloat minY = CGRectGetMinY(self.bounds);
-    CGFloat maxY = CGRectGetMaxY(self.bounds);
+
+    // for smooth stroke( http://stackoverflow.com/a/2181479 )
+    CGRect lineRect = CGRectInset(self.bounds, _lineWidth/2, _lineWidth/2);
+    CGFloat minX = CGRectGetMinX(lineRect);
+    //CGFloat midX = CGRectGetMidX(lineRect);
+    CGFloat maxX = CGRectGetMaxX(lineRect);
+    CGFloat minY = CGRectGetMinY(lineRect);
+    CGFloat midY = CGRectGetMidY(lineRect);
+    CGFloat maxY = CGRectGetMaxY(lineRect);
+    
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextClearRect(ctx, self.bounds);
 
     if (_position == YKRoundedViewPositionTop) {
-        CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, NULL, minX, maxY);
-        CGPathAddArcToPoint(path, NULL, minX, minY, minX + cornerRadius, minY, cornerRadius);
-        CGPathAddArcToPoint(path, NULL, maxX, minY, maxX, minY + cornerRadius, cornerRadius);
-        CGPathAddLineToPoint(path, NULL, maxX, maxY);
-        
-        CAShapeLayer *shapeLayer = [CAShapeLayer layer];
-        shapeLayer.path = path;
-        shapeLayer.fillColor = _fillColor.CGColor;
-
         CGMutablePathRef linePath = CGPathCreateMutable();
-        CGPathMoveToPoint(linePath, NULL, minX, maxY);
+        CGPathMoveToPoint(linePath, NULL, minX, maxY + _lineWidth/2);
         CGPathAddArcToPoint(linePath, NULL, minX, minY, minX + cornerRadius, minY, cornerRadius);
         CGPathAddArcToPoint(linePath, NULL, maxX, minY, maxX, minY + cornerRadius, cornerRadius);
-        CGPathAddLineToPoint(linePath, NULL, maxX, maxY);
-        
-        CAShapeLayer *lineLayer = [CAShapeLayer layer];
-        lineLayer.path = linePath;
-        lineLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-        lineLayer.strokeColor = _strokeColor.CGColor;
-        lineLayer.fillColor = [UIColor clearColor].CGColor;
+        CGPathAddLineToPoint(linePath, NULL, maxX, maxY + _lineWidth/2);
 
-        CGMutablePathRef shadowPath = CGPathCreateMutable();
-        CGPathMoveToPoint(shadowPath, NULL, minX, minY + cornerRadius);
-        CGPathAddArcToPoint(shadowPath, NULL, minX, minY + 1.0f, minX + cornerRadius, minY + 1.0f, cornerRadius);
-        CGPathAddArcToPoint(shadowPath, NULL, maxX, minY + 1.0f, maxX, minY + cornerRadius, cornerRadius);
-        
-        CAShapeLayer *shadowLayer = [CAShapeLayer layer];
-        shadowLayer.path = shadowPath;
-        shadowLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-        shadowLayer.strokeColor = _shadowColor.CGColor;
-        shadowLayer.fillColor = [UIColor clearColor].CGColor;
-        
-        [shapeLayer addSublayer:shadowLayer];
-        [shapeLayer addSublayer:lineLayer];
-
-        if (_showsSeparator) {
-            CGMutablePathRef bottomSeparatorPath = CGPathCreateMutable();
-            CGPathMoveToPoint(bottomSeparatorPath, NULL, minX, maxY - 0.5f);
-            CGPathAddLineToPoint(bottomSeparatorPath, NULL, maxX, maxY - 0.5f);
-
-            CAShapeLayer *bottomSeparatorLayer = [CAShapeLayer layer];
-            bottomSeparatorLayer.path = bottomSeparatorPath;
-            bottomSeparatorLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-            bottomSeparatorLayer.strokeColor = _separatorColor.CGColor;
-            [shapeLayer addSublayer:bottomSeparatorLayer];
-        }
-        
-        [self.layer insertSublayer:shapeLayer atIndex:0];
+        CGContextSaveGState(ctx);
+        CGContextAddPath(ctx, linePath);
+        CGContextSetFillColorWithColor(ctx, _fillColor.CGColor);
+        CGContextSetStrokeColorWithColor(ctx, _strokeColor.CGColor);
+        CGContextSetLineCap(ctx, kCGLineCapSquare);
+        CGContextSetLineWidth(ctx, _lineWidth);
+        CGContextSetShadowWithColor(ctx, CGSizeMake(0.0f, 1.0f), 0.5f, _innerShadowColor.CGColor);
+        CGContextDrawPath(ctx, kCGPathFillStroke);
+        CGContextRestoreGState(ctx);
     } else if (_position == YKRoundedViewPositionMiddle) {
-        CAShapeLayer *shapeLayer = [CAShapeLayer layer];
-        shapeLayer.path = [UIBezierPath bezierPathWithRect:self.bounds].CGPath;
-        shapeLayer.fillColor = (_fillColor ? _fillColor : [UIColor whiteColor]).CGColor;
+        CGMutablePathRef shapePath = CGPathCreateMutable();
+        CGPathMoveToPoint(shapePath, NULL, minX, maxY + _lineWidth/2);
+        CGPathAddLineToPoint(shapePath, NULL, minX, minY - _lineWidth/2);
+        CGPathAddLineToPoint(shapePath, NULL, maxX, minY - _lineWidth/2);
+        CGPathAddLineToPoint(shapePath, NULL, maxX, maxY + _lineWidth/2);
         
+        CGContextSaveGState(ctx);
+        CGContextAddPath(ctx, shapePath);
+        CGContextSetFillColorWithColor(ctx, _fillColor.CGColor);
+        CGContextDrawPath(ctx, kCGPathFill);
+        CGContextRestoreGState(ctx);
+
         CGMutablePathRef linePath = CGPathCreateMutable();
         CGPathMoveToPoint(linePath, NULL, minX, maxY);
         CGPathAddLineToPoint(linePath, NULL, minX, minY);
         CGPathMoveToPoint(linePath, NULL, maxX, minY);
         CGPathAddLineToPoint(linePath, NULL, maxX, maxY);
-
-        CAShapeLayer *lineLayer = [CAShapeLayer layer];
-        lineLayer.path = linePath;
-        lineLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-        lineLayer.strokeColor = _strokeColor.CGColor;
-        lineLayer.fillColor = [UIColor clearColor].CGColor;
         
-        [shapeLayer addSublayer:lineLayer];
-
-
+        CGContextSaveGState(ctx);
+        CGContextAddPath(ctx, linePath);
+        CGContextSetStrokeColorWithColor(ctx, _strokeColor.CGColor);
+        CGContextSetLineCap(ctx, kCGLineCapSquare);
+        CGContextSetLineWidth(ctx, _lineWidth);
+        CGContextDrawPath(ctx, kCGPathStroke);
+        CGContextRestoreGState(ctx);
+        
         if (_showsSeparator) {
-            CGMutablePathRef topSeparatorPath = CGPathCreateMutable();
-            CGPathMoveToPoint(topSeparatorPath, NULL, minX + 0.5f, minY + 0.5f);
-            CGPathAddLineToPoint(topSeparatorPath, NULL, maxX - 0.5f, minY + 0.5f);
+            CGMutablePathRef lowerSeparatorPath = CGPathCreateMutable();
+            CGPathMoveToPoint(lowerSeparatorPath, NULL, minX + _lineWidth, minY + _lineWidth);
+            CGPathAddLineToPoint(lowerSeparatorPath, NULL, maxX - _lineWidth, minY + _lineWidth);
             
-            CAShapeLayer *topSeparatorLayer = [CAShapeLayer layer];
-            topSeparatorLayer.path = topSeparatorPath;
-            topSeparatorLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-            topSeparatorLayer.strokeColor = _separatorShadowColor.CGColor;
-            [shapeLayer addSublayer:topSeparatorLayer];
-        
-            CGMutablePathRef bottomSeparatorPath = CGPathCreateMutable();
-            CGPathMoveToPoint(bottomSeparatorPath, NULL, minX, maxY - 0.5f);
-            CGPathAddLineToPoint(bottomSeparatorPath, NULL, maxX, maxY - 0.5f);
+            CGContextSaveGState(ctx);
+            CGContextAddPath(ctx, lowerSeparatorPath);
+            CGContextSetStrokeColorWithColor(ctx, _separatorShadowColor.CGColor);
+            CGContextSetLineWidth(ctx, (_lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth));
+            CGContextDrawPath(ctx, kCGPathStroke);
+            CGContextRestoreGState(ctx);
+
+            CGMutablePathRef upperSeparatorPath = CGPathCreateMutable();
+            CGPathMoveToPoint(upperSeparatorPath, NULL, minX + _lineWidth/2, minY);
+            CGPathAddLineToPoint(upperSeparatorPath, NULL, maxX - _lineWidth/2, minY);
             
-            CAShapeLayer *bottomSeparatorLayer = [CAShapeLayer layer];
-            bottomSeparatorLayer.path = bottomSeparatorPath;
-            bottomSeparatorLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-            bottomSeparatorLayer.strokeColor = _separatorColor.CGColor;
-            [shapeLayer addSublayer:bottomSeparatorLayer];
+            CGContextSaveGState(ctx);
+            CGContextAddPath(ctx, upperSeparatorPath);
+            CGContextSetStrokeColorWithColor(ctx, _separatorColor.CGColor);
+            CGContextSetLineWidth(ctx, (_lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth));
+            CGContextDrawPath(ctx, kCGPathStroke);
+            CGContextRestoreGState(ctx);
         }
-        
-        [self.layer insertSublayer:shapeLayer atIndex:0];
     } else if (_position == YKRoundedViewPositionBottom) {
-        CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, NULL, minX, minY);
-        CGPathAddArcToPoint(path, NULL, minX, maxY, minX + cornerRadius, maxY, cornerRadius);
-        CGPathAddArcToPoint(path, NULL, maxX, maxY, maxX, maxY - cornerRadius, cornerRadius);
-        CGPathAddLineToPoint(path, NULL, maxX, minY);
-        
-        CAShapeLayer *shapeLayer = [CAShapeLayer layer];
-        shapeLayer.path = path;
-        shapeLayer.fillColor = (_fillColor ? _fillColor : [UIColor whiteColor]).CGColor;
-        
         CGMutablePathRef linePath = CGPathCreateMutable();
-        CGPathMoveToPoint(linePath, NULL, minX, minY);
-        CGPathAddArcToPoint(linePath, NULL, minX, maxY, minX + cornerRadius, maxY, cornerRadius);
-        CGPathAddArcToPoint(linePath, NULL, maxX, maxY, maxX, maxY - cornerRadius, cornerRadius);
-        CGPathAddLineToPoint(linePath, NULL, maxX, minY);
+        CGPathMoveToPoint(linePath, NULL, minX, minY - _lineWidth/2);
+        CGPathAddArcToPoint(linePath, NULL, minX, maxY - _lineWidth/2, minX + cornerRadius, maxY - _lineWidth/2, cornerRadius);
+        CGPathAddArcToPoint(linePath, NULL, maxX, maxY - _lineWidth/2, maxX, maxY - _lineWidth/2 - cornerRadius, cornerRadius);
+        CGPathAddLineToPoint(linePath, NULL, maxX, minY - _lineWidth/2);
         
-        CAShapeLayer *lineLayer = [CAShapeLayer layer];
-        lineLayer.path = linePath;
-        lineLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-        lineLayer.strokeColor = _strokeColor.CGColor;
-        lineLayer.fillColor = [UIColor clearColor].CGColor;
+        CGContextSaveGState(ctx);
+
+        CGContextAddPath(ctx, linePath);
+        CGContextSetFillColorWithColor(ctx, _fillColor.CGColor);
+        CGContextSetStrokeColorWithColor(ctx, _strokeColor.CGColor);
+        CGContextSetLineCap(ctx, kCGLineCapSquare);
+        CGContextSetLineWidth(ctx, _lineWidth);
+        CGContextSetShadowWithColor(ctx, CGSizeMake(0.0f, 1.0f), 0.5f, _outerShadowColor.CGColor);
+        CGContextDrawPath(ctx, kCGPathFillStroke);
+        CGContextRestoreGState(ctx);
         
-        CGMutablePathRef shadowPath = CGPathCreateMutable();
-        CGPathMoveToPoint(shadowPath, NULL, minX, maxY - cornerRadius);
-        CGPathAddArcToPoint(shadowPath, NULL, minX, maxY + 0.5f, minX + cornerRadius, maxY + 0.5f, cornerRadius);
-        CGPathAddArcToPoint(shadowPath, NULL, maxX, maxY + 0.5f, maxX, maxY + 0.5f - cornerRadius, cornerRadius);
-
-        CAShapeLayer *shadowLayer = [CAShapeLayer layer];
-        shadowLayer.path = shadowPath;
-        shadowLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-        shadowLayer.strokeColor = _shadowColor.CGColor;
-        shadowLayer.fillColor = [UIColor clearColor].CGColor;
-
-        [shapeLayer addSublayer:shadowLayer];
-        [shapeLayer addSublayer:lineLayer];
-
         if (_showsSeparator) {
-            CGMutablePathRef topSeparatorPath = CGPathCreateMutable();
-            CGPathMoveToPoint(topSeparatorPath, NULL, minX + 0.5f, minY + 0.5f);
-            CGPathAddLineToPoint(topSeparatorPath, NULL, maxX - 0.5f, minY + 0.5f);
+            CGMutablePathRef lowerSeparatorPath = CGPathCreateMutable();
+            CGPathMoveToPoint(lowerSeparatorPath, NULL, minX + _lineWidth, minY + _lineWidth);
+            CGPathAddLineToPoint(lowerSeparatorPath, NULL, maxX - _lineWidth, minY + _lineWidth);
             
-            CAShapeLayer *topSeparatorLayer = [CAShapeLayer layer];
-            topSeparatorLayer.path = topSeparatorPath;
-            topSeparatorLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-            topSeparatorLayer.strokeColor = _separatorShadowColor.CGColor;
-            [shapeLayer addSublayer:topSeparatorLayer];
+            CGContextSaveGState(ctx);
+            CGContextAddPath(ctx, lowerSeparatorPath);
+            CGContextSetStrokeColorWithColor(ctx, _separatorShadowColor.CGColor);
+            CGContextSetLineWidth(ctx, (_lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth));
+            CGContextDrawPath(ctx, kCGPathStroke);
+            CGContextRestoreGState(ctx);
+            
+            CGMutablePathRef upperSeparatorPath = CGPathCreateMutable();
+            CGPathMoveToPoint(upperSeparatorPath, NULL, minX + _lineWidth/2, minY);
+            CGPathAddLineToPoint(upperSeparatorPath, NULL, maxX - _lineWidth/2, minY);
+            
+            CGContextSaveGState(ctx);
+            CGContextAddPath(ctx, upperSeparatorPath);
+            CGContextSetStrokeColorWithColor(ctx, _separatorColor.CGColor);
+            CGContextSetLineWidth(ctx, (_lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth));
+            CGContextDrawPath(ctx, kCGPathStroke);
+            CGContextRestoreGState(ctx);
         }
-        
-        [self.layer insertSublayer:shapeLayer atIndex:0];
     } else if (_position == YKRoundedViewPositionSingle) {
-        CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, NULL, minX, maxY - cornerRadius);
-        CGPathAddArcToPoint(path, NULL, minX, minY, minX + cornerRadius, minY, cornerRadius);
-        CGPathAddArcToPoint(path, NULL, maxX, minY, maxX, minY + cornerRadius, cornerRadius);
-        CGPathAddArcToPoint(path, NULL, maxX, maxY, maxX - cornerRadius, maxY, cornerRadius);
-        CGPathAddArcToPoint(path, NULL, minX, maxY, minX, maxY - cornerRadius, cornerRadius);
+        CGMutablePathRef upperLinePath = CGPathCreateMutable();
+        CGPathMoveToPoint(upperLinePath, NULL, minX, midY);
+        CGPathAddArcToPoint(upperLinePath, NULL, minX, minY, minX + cornerRadius, minY, cornerRadius);
+        CGPathAddArcToPoint(upperLinePath, NULL, maxX, minY, maxX, midY, cornerRadius);
+        CGPathAddLineToPoint(upperLinePath, NULL, maxX, midY);
         
-        CAShapeLayer *shapeLayer = [CAShapeLayer layer];
-        shapeLayer.path = path;
-        shapeLayer.fillColor = _fillColor.CGColor;
+        CGContextSaveGState(ctx);
+        CGContextAddPath(ctx, upperLinePath);
+        CGContextSetFillColorWithColor(ctx, _fillColor.CGColor);
+        CGContextSetStrokeColorWithColor(ctx, _strokeColor.CGColor);
+        CGContextSetLineCap(ctx, kCGLineCapSquare);
+        CGContextSetLineWidth(ctx, _lineWidth);
+        CGContextSetShadowWithColor(ctx, CGSizeMake(0.0f, 1.0f), 0.5f, _innerShadowColor.CGColor);
+        CGContextDrawPath(ctx, kCGPathFillStroke);
+        CGContextRestoreGState(ctx);
+
+        CGMutablePathRef lowerLinePath = CGPathCreateMutable();
+        CGPathMoveToPoint(lowerLinePath, NULL, minX, midY);
+        CGPathAddArcToPoint(lowerLinePath, NULL, minX, maxY, minX + cornerRadius, maxY, cornerRadius);
+        CGPathAddArcToPoint(lowerLinePath, NULL, maxX, maxY, maxX, midY, cornerRadius);
+        CGPathAddLineToPoint(lowerLinePath, NULL, maxX, midY);
         
-        CGMutablePathRef linePath = CGPathCreateMutable();
-        CGPathMoveToPoint(linePath, NULL, minX, maxY - cornerRadius);
-        CGPathAddArcToPoint(linePath, NULL, minX, minY, minX + cornerRadius, minY, cornerRadius);
-        CGPathAddArcToPoint(linePath, NULL, maxX, minY, maxX, minY + cornerRadius, cornerRadius);
-        CGPathAddArcToPoint(linePath, NULL, maxX, maxY, maxX - cornerRadius, maxY, cornerRadius);
-        CGPathAddArcToPoint(linePath, NULL, minX, maxY, minX, maxY - cornerRadius, cornerRadius);
-        
-        CAShapeLayer *lineLayer = [CAShapeLayer layer];
-        lineLayer.path = linePath;
-        lineLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-        lineLayer.strokeColor = _strokeColor.CGColor;
-        lineLayer.fillColor = [UIColor clearColor].CGColor;
-        
-        CGMutablePathRef topShadowPath = CGPathCreateMutable();
-        CGPathMoveToPoint(topShadowPath, NULL, minX, minY + cornerRadius);
-        CGPathAddArcToPoint(topShadowPath, NULL, minX, minY + 1.0f, minX + cornerRadius, minY + 1.0f, cornerRadius);
-        CGPathAddArcToPoint(topShadowPath, NULL, maxX, minY + 1.0f, maxX, minY + cornerRadius, cornerRadius);
-        
-        CAShapeLayer *topShadowLayer = [CAShapeLayer layer];
-        topShadowLayer.path = topShadowPath;
-        topShadowLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-        topShadowLayer.strokeColor = _shadowColor.CGColor;
-        topShadowLayer.fillColor = [UIColor clearColor].CGColor;
-        
-        CGMutablePathRef bottomShadowPath = CGPathCreateMutable();
-        CGPathMoveToPoint(bottomShadowPath, NULL, minX, maxY - cornerRadius);
-        CGPathAddArcToPoint(bottomShadowPath, NULL, minX, maxY + 0.5f, minX + cornerRadius, maxY + 0.5f, cornerRadius);
-        CGPathAddArcToPoint(bottomShadowPath, NULL, maxX, maxY + 0.5f, maxX, maxY + 0.5f - cornerRadius, cornerRadius);
-        
-        CAShapeLayer *bottomShadowLayer = [CAShapeLayer layer];
-        bottomShadowLayer.path = bottomShadowPath;
-        bottomShadowLayer.lineWidth = _lineWidth ? _lineWidth : kYKRoundedViewDefaultLineWidth;
-        bottomShadowLayer.strokeColor = _shadowColor.CGColor;
-        bottomShadowLayer.fillColor = [UIColor clearColor].CGColor;
-        
-        [shapeLayer addSublayer:bottomShadowLayer];
-        [shapeLayer addSublayer:topShadowLayer];
-        [shapeLayer addSublayer:lineLayer];
-        
-        [self.layer insertSublayer:shapeLayer atIndex:0];
+        CGContextSaveGState(ctx);
+        CGContextAddPath(ctx, lowerLinePath);
+        CGContextSetFillColorWithColor(ctx, _fillColor.CGColor);
+        CGContextSetStrokeColorWithColor(ctx, _strokeColor.CGColor);
+        CGContextSetLineCap(ctx, kCGLineCapSquare);
+        CGContextSetLineWidth(ctx, _lineWidth);
+        CGContextSetShadowWithColor(ctx, CGSizeMake(0.0f, 1.0f), 0.5f, _outerShadowColor.CGColor);
+        CGContextDrawPath(ctx, kCGPathFillStroke);
+        CGContextRestoreGState(ctx);
     }
 }
 

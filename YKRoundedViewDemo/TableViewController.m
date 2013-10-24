@@ -2,7 +2,7 @@
 //  TableViewController.m
 //  YKRoundedViewDemo
 //
-//  Created by Yoshiki Kurihara on 2013/10/23.
+//  Created by Yoshiki Kurihara on 2013/10/24.
 //  Copyright (c) 2013年 Yoshiki Kurihara. All rights reserved.
 //
 
@@ -44,12 +44,12 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 3;
+    return (section == 0) ? 3 : 1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -62,10 +62,6 @@
     }
     
     return cell;
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
 /*

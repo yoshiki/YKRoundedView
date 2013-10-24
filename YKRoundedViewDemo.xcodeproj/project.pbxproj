@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D64B2A1718177DDF009DD259 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D64B2A1618177DDF009DD259 /* TableViewController.m */; };
+		D62FD9841818E75B00E31F18 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D62FD9831818E75B00E31F18 /* TableViewController.m */; };
 		D6D9559C181648C2007BAB73 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9559B181648C2007BAB73 /* Foundation.framework */; };
 		D6D9559E181648C2007BAB73 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9559D181648C2007BAB73 /* CoreGraphics.framework */; };
 		D6D955A0181648C2007BAB73 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9559F181648C2007BAB73 /* UIKit.framework */; };
@@ -35,8 +35,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D64B2A1518177DDF009DD259 /* TableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewController.h; sourceTree = "<group>"; };
-		D64B2A1618177DDF009DD259 /* TableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewController.m; sourceTree = "<group>"; };
+		D62FD9821818E75B00E31F18 /* TableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewController.h; sourceTree = "<group>"; };
+		D62FD9831818E75B00E31F18 /* TableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewController.m; sourceTree = "<group>"; };
 		D6D95598181648C2007BAB73 /* YKRoundedViewDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YKRoundedViewDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6D9559B181648C2007BAB73 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D6D9559D181648C2007BAB73 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -121,8 +121,8 @@
 				D6D955AB181648C2007BAB73 /* AppDelegate.m */,
 				D6D955CE181648F3007BAB73 /* ViewController.h */,
 				D6D955CF181648F3007BAB73 /* ViewController.m */,
-				D64B2A1518177DDF009DD259 /* TableViewController.h */,
-				D64B2A1618177DDF009DD259 /* TableViewController.m */,
+				D62FD9821818E75B00E31F18 /* TableViewController.h */,
+				D62FD9831818E75B00E31F18 /* TableViewController.m */,
 				D6D955AD181648C2007BAB73 /* Images.xcassets */,
 				D6D955A2181648C2007BAB73 /* Supporting Files */,
 			);
@@ -265,7 +265,7 @@
 				D6D955CD181648E5007BAB73 /* YKRoundedView.m in Sources */,
 				D6D955AC181648C2007BAB73 /* AppDelegate.m in Sources */,
 				D6D955D0181648F3007BAB73 /* ViewController.m in Sources */,
-				D64B2A1718177DDF009DD259 /* TableViewController.m in Sources */,
+				D62FD9841818E75B00E31F18 /* TableViewController.m in Sources */,
 				D6D955A8181648C2007BAB73 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -19,7 +19,8 @@ typedef enum {
 
 @property (nonatomic, strong) UIColor *fillColor;
 @property (nonatomic, strong) UIColor *strokeColor;
-@property (nonatomic, strong) UIColor *shadowColor;
+@property (nonatomic, strong) UIColor *innerShadowColor;
+@property (nonatomic, strong) UIColor *outerShadowColor;
 @property (nonatomic, strong) UIColor *separatorColor;
 @property (nonatomic, strong) UIColor *separatorShadowColor;
 @property (nonatomic, assign) CGFloat lineWidth;
